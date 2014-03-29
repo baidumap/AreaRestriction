@@ -1,0 +1,147 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"> <style>
+	.KEYW {color: #933;}
+	.COMM {color: #bbb; font-style: italic;}
+	.NUMB {color: #393;}
+	.STRN {color: #393;}
+	.REGX {color: #339;}
+	.line {border-right: 1px dotted #666; color: #666; font-style: normal;}
+	</style></head><body><pre><span class='line'>  1</span> <span class="COMM">/**
+<span class='line'>  2</span>  * @fileoverview 百度地图浏览区域限制类，对外开放。
+<span class='line'>  3</span>  * 允许开发者输入限定浏览的地图区域的Bounds值，
+<span class='line'>  4</span>  * 则地图浏览者只能在限定区域内浏览地图。
+<span class='line'>  5</span>  * 基于Baidu Map API 1.2。
+<span class='line'>  6</span>  *
+<span class='line'>  7</span>  * @author Baidu Map Api Group 
+<span class='line'>  8</span>  * @version 1.2
+<span class='line'>  9</span>  */</span><span class="WHIT">
+<span class='line'> 10</span> 
+<span class='line'> 11</span> </span><span class="COMM">/** 
+<span class='line'> 12</span>  * @namespace BMap的所有library类均放在BMapLib命名空间下
+<span class='line'> 13</span>  */</span><span class="WHIT">
+<span class='line'> 14</span> </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">BMapLib</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">window.BMapLib</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">BMapLib</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 15</span> 
+<span class='line'> 16</span> </span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 17</span> 
+<span class='line'> 18</span> </span><span class="WHIT">    </span><span class="COMM">/** 
+<span class='line'> 19</span>      * @exports AreaRestriction as BMapLib.AreaRestriction 
+<span class='line'> 20</span>      */</span><span class="WHIT">
+<span class='line'> 21</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">AreaRestriction</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT">
+<span class='line'> 22</span> </span><span class="WHIT">        </span><span class="COMM">/**
+<span class='line'> 23</span>          * AreaRestriction类，静态类，不用实例化
+<span class='line'> 24</span>          * @class AreaRestriction类提供的都是静态方法，勿需实例化即可使用。     
+<span class='line'> 25</span>          */</span><span class="WHIT">
+<span class='line'> 26</span> </span><span class="WHIT">        </span><span class="NAME">BMapLib.AreaRestriction</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 27</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'> 28</span> </span><span class="WHIT">    
+<span class='line'> 29</span>     </span><span class="COMM">/**
+<span class='line'> 30</span>      * 是否已经对区域进行过限定的标识
+<span class='line'> 31</span>      * @private
+<span class='line'> 32</span>      * @type {Boolean}
+<span class='line'> 33</span>      */</span><span class="WHIT">
+<span class='line'> 34</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">_isRestricted</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 35</span> 
+<span class='line'> 36</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='line'> 37</span>      * map对象
+<span class='line'> 38</span>      * @private
+<span class='line'> 39</span>      * @type {BMap}
+<span class='line'> 40</span>      */</span><span class="WHIT">
+<span class='line'> 41</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">_map</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 42</span> 
+<span class='line'> 43</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='line'> 44</span>      * 开发者需要限定的区域
+<span class='line'> 45</span>      * @private
+<span class='line'> 46</span>      * @type {BMap.Bounds}
+<span class='line'> 47</span>      */</span><span class="WHIT">
+<span class='line'> 48</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">_bounds</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">null</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 49</span> 
+<span class='line'> 50</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='line'> 51</span>      * 对可浏览地图区域的限定方法
+<span class='line'> 52</span>      * @param {BMap} map map对象
+<span class='line'> 53</span>      * @param {BMap.Bounds} bounds 开发者需要限定的区域
+<span class='line'> 54</span>      *
+<span class='line'> 55</span>      * @return {Boolean} 完成了对区域的限制即返回true，否则为false
+<span class='line'> 56</span>      */</span><span class="WHIT">
+<span class='line'> 57</span> </span><span class="WHIT">    </span><span class="NAME">AreaRestriction.setBounds</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">map</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">bounds</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 58</span> </span><span class="WHIT">        </span><span class="COMM">// 验证输入值的合法性</span><span class="WHIT">
+<span class='line'> 59</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">map</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> 
+<span class='line'> 60</span>             </span><span class="PUNC">!</span><span class="NAME">bounds</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> 
+<span class='line'> 61</span>             </span><span class="PUNC">!</span><span class="PUNC">(</span><span class="NAME">bounds</span><span class="WHIT"> </span><span class="KEYW">instanceof</span><span class="WHIT"> </span><span class="NAME">BMap.Bounds</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 62</span> </span><span class="WHIT">                </span><span class="KEYW">throw</span><span class="WHIT"> </span><span class="STRN">"请检查传入参数值的合法性"</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 63</span> </span><span class="WHIT">                </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 64</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'> 65</span> </span><span class="WHIT">        
+<span class='line'> 66</span>         </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">_isRestricted</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 67</span> </span><span class="WHIT">            </span><span class="NAME">this.clearBounds</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 68</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'> 69</span> </span><span class="WHIT">        </span><span class="NAME">_map</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">map</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 70</span> </span><span class="WHIT">        </span><span class="NAME">_bounds</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">bounds</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 71</span> 
+<span class='line'> 72</span> </span><span class="WHIT">        </span><span class="COMM">// 添加地图的moving事件，用以对浏览区域的限制</span><span class="WHIT">
+<span class='line'> 73</span> </span><span class="WHIT">        </span><span class="NAME">_map.addEventListener</span><span class="PUNC">(</span><span class="STRN">"moveend"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">this._mapMoveendEvent</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 74</span> </span><span class="WHIT">        </span><span class="NAME">_isRestricted</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 75</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 76</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 77</span> 
+<span class='line'> 78</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='line'> 79</span>      * 需要绑定在地图移动事件中的操作，主要控制出界时的地图重新定位
+<span class='line'> 80</span>      * @param {Event} e e对象
+<span class='line'> 81</span>      *
+<span class='line'> 82</span>      * @return 无返回值
+<span class='line'> 83</span>      */</span><span class="WHIT">
+<span class='line'> 84</span> </span><span class="WHIT">    </span><span class="NAME">AreaRestriction._mapMoveendEvent</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">e</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 85</span> </span><span class="WHIT">        </span><span class="COMM">// 如果当前完全没有出界，则无操作</span><span class="WHIT">
+<span class='line'> 86</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">_bounds.containsBounds</span><span class="PUNC">(</span><span class="NAME">_map.getBounds</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 87</span> </span><span class="WHIT">            </span><span class="KEYW">return</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 88</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'> 89</span> 
+<span class='line'> 90</span> </span><span class="WHIT">        </span><span class="COMM">// 两个需要对比的bound区域的边界值</span><span class="WHIT">
+<span class='line'> 91</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">curBounds</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">_map.getBounds</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 92</span> </span><span class="WHIT">              </span><span class="NAME">curBoundsSW</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">curBounds.getSouthWest</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 93</span> </span><span class="WHIT">              </span><span class="NAME">curBoundsNE</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">curBounds.getNorthEast</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 94</span> </span><span class="WHIT">              </span><span class="NAME">_boundsSW</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">_bounds.getSouthWest</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 95</span> </span><span class="WHIT">              </span><span class="NAME">_boundsNE</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">_bounds.getNorthEast</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 96</span> 
+<span class='line'> 97</span> </span><span class="WHIT">        </span><span class="COMM">// 需要计算定位中心点的四个边界</span><span class="WHIT">
+<span class='line'> 98</span> </span><span class="WHIT">        </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">boundary</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="NAME">n</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">e</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">s</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">w</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NUMB">0</span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 99</span> </span><span class="WHIT">        
+<span class='line'>100</span>         </span><span class="COMM">// 计算需要定位的中心点的上方边界</span><span class="WHIT">
+<span class='line'>101</span> </span><span class="WHIT">        </span><span class="NAME">boundary.n</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">curBoundsNE.lat</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">_boundsNE.lat</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">?</span><span class="WHIT"> 
+<span class='line'>102</span>                                     </span><span class="NAME">curBoundsNE.lat</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT">
+<span class='line'>103</span> </span><span class="WHIT">                                    </span><span class="NAME">_boundsNE.lat</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>104</span> 
+<span class='line'>105</span> </span><span class="WHIT">        </span><span class="COMM">// 计算需要定位的中心点的右边边界</span><span class="WHIT">
+<span class='line'>106</span> </span><span class="WHIT">        </span><span class="NAME">boundary.e</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">curBoundsNE.lng</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">_boundsNE.lng</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">?</span><span class="WHIT"> 
+<span class='line'>107</span>                                     </span><span class="NAME">curBoundsNE.lng</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT">
+<span class='line'>108</span> </span><span class="WHIT">                                    </span><span class="NAME">_boundsNE.lng</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>109</span> 
+<span class='line'>110</span> </span><span class="WHIT">        </span><span class="COMM">// 计算需要定位的中心点的下方边界</span><span class="WHIT">
+<span class='line'>111</span> </span><span class="WHIT">        </span><span class="NAME">boundary.s</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">curBoundsSW.lat</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">_boundsSW.lat</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">?</span><span class="WHIT"> 
+<span class='line'>112</span>                                     </span><span class="NAME">_boundsSW.lat</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT">
+<span class='line'>113</span> </span><span class="WHIT">                                    </span><span class="NAME">curBoundsSW.lat</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>114</span> 
+<span class='line'>115</span> </span><span class="WHIT">        </span><span class="COMM">// 计算需要定位的中心点的左边边界</span><span class="WHIT">
+<span class='line'>116</span> </span><span class="WHIT">        </span><span class="NAME">boundary.w</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">curBoundsSW.lng</span><span class="WHIT"> </span><span class="PUNC">&lt;</span><span class="WHIT"> </span><span class="NAME">_boundsSW.lng</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">?</span><span class="WHIT"> 
+<span class='line'>117</span>                                     </span><span class="NAME">_boundsSW.lng</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT">
+<span class='line'>118</span> </span><span class="WHIT">                                    </span><span class="NAME">curBoundsSW.lng</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>119</span> </span><span class="WHIT">        
+<span class='line'>120</span>         </span><span class="COMM">// 设置新的中心点</span><span class="WHIT">
+<span class='line'>121</span> </span><span class="WHIT">       </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">center</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">BMap.Point</span><span class="PUNC">(</span><span class="NAME">boundary.w</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">boundary.e</span><span class="WHIT"> </span><span class="PUNC">-</span><span class="WHIT"> </span><span class="NAME">boundary.w</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">/</span><span class="WHIT"> </span><span class="NUMB">2</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>122</span> </span><span class="WHIT">                                                         </span><span class="NAME">boundary.s</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">boundary.n</span><span class="WHIT"> </span><span class="PUNC">-</span><span class="WHIT"> </span><span class="NAME">boundary.s</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">/</span><span class="WHIT"> </span><span class="NUMB">2</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>123</span> </span><span class="WHIT">       </span><span class="NAME">setTimeout</span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>124</span> </span><span class="WHIT">            </span><span class="NAME">_map.panTo</span><span class="PUNC">(</span><span class="NAME">center</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="NAME">noAnimation</span><span class="WHIT"> </span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">"no"</span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>125</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NUMB">1</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>126</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>127</span> 
+<span class='line'>128</span> </span><span class="WHIT">    </span><span class="COMM">/**
+<span class='line'>129</span>      * 清除对地图浏览区域限定的状态
+<span class='line'>130</span>      * @return 无返回值
+<span class='line'>131</span>      */</span><span class="WHIT">
+<span class='line'>132</span> </span><span class="WHIT">    </span><span class="NAME">AreaRestriction.clearBounds</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>133</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">_isRestricted</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>134</span> </span><span class="WHIT">            </span><span class="KEYW">return</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>135</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>136</span> </span><span class="WHIT">        </span><span class="NAME">_map.removeEventListener</span><span class="PUNC">(</span><span class="STRN">"moveend"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">this._mapMoveendEvent</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>137</span> </span><span class="WHIT">        </span><span class="NAME">_isRestricted</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>138</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>139</span> 
+<span class='line'>140</span> </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span></pre></body></html>
